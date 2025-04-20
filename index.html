@@ -3,158 +3,88 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>CSE160: Assignment 4</title>
-
+  <title>💎 VoxelMiner</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: sans-serif;
-  }
-
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: black;
-    border: 1px solid #ccc;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-  }
-
-  .overlay {
-    position: absolute;
-    top: 50px;
-    right: 20px;
-    background-color: rgba(0, 0, 0, 0.7); /* semi-transparent black */
-    color: white;
-    padding: 16px;
-    border-radius: 10px;
-    max-height: 85%;
-    overflow-y: auto;
-    z-index: 1;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
-
-  .overlay.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-
-  .toggle-button {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    z-index: 2;
-    padding: 8px 12px;
-    font-size: 14px;
-    background-color: rgba(0, 0, 0, 0.85);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  input[type="range"] {
-    width: 30%;
-  }
-
-  label {
-    display: block;
-    /* font-weight: bold; */
-    margin-bottom: 4px;
-  }
-
-  p {
-    margin-bottom: 12px;
-  }
-</style>
-
 
 <body onload="main()">
   <button class="toggle-button" onclick="toggleOverlay()">Toggle Controls</button>
+  <a href="https://github.com/ashwanirathee/VoxelMiner" target="_blank" class="github-button">View on GitHub</a>
 
   <canvas id="webgl_canvas">
     Please use a browser that supports "canvas"
   </canvas>
-  
+
   <div class="overlay">
-    <p>
-      <label for="normalController">
-        Normals (Turned off by default, pls turn on to see some normals):
-      </label>
-      <button type="button" id="normalController">Turn On</button>
-    </p>
-  
-    <p>
-      <label for="spotlightController">Spot Light:</label>
-      <button type="button" id="spotlightController">Turn Off</button>
-    </p>
-  
-    <p>
-      <label for="lightController">Point Light:</label>
-      <button type="button" id="lightController">Turn Off</button>
-    </p>
-  
-    <p>
-      <label for="lightAnimationController">Point Light Animation:</label>
-      <button type="button" id="lightAnimationController">Turn Off</button>
-    </p>
-  
-    <p>
-      <label for="lightX">Point Light X</label>
-      <input type="range" min="-16" max="16" value="5" id="lightX">
-    </p>
-  
-    <p>
-      <label for="lightY">Point Light Y</label>
-      <input type="range" min="2" max="10" value="5" id="lightY">
-    </p>
-  
-    <p>
-      <label for="lightZ">Point Light Z</label>
-      <input type="range" min="-16" max="16" value="5" id="lightZ">
-    </p>
-  
-    <p>
-      <label for="lightXc">Light R</label>
-      <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightXc">
-    </p>
-  
-    <p>
-      <label for="lightYc">Light G</label>
-      <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightYc">
-    </p>
-  
-    <p>
-      <label for="lightZc">Light B</label>
-      <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightZc">
-    </p>
-  
-    <p>
-      <label for="cameraFOVc">Camera FOV</label>
-      <input type="range" min="15" max="135" step="15" value="45" id="cameraFOVc">
-    </p>
-  
-    <p>
-      <label for="cameraNEARc">Camera Near</label>
-      <input type="range" min="0.001" max="10.001" step="1" value="0.001" id="cameraNEARc">
-    </p>
-  
-    <p>
-      <label for="cameraFARc">Camera Far</label>
-      <input type="range" min="2" max="200" step="10" value="100" id="cameraFARc">
-    </p>
-  
+
+    <fieldset>
+      <legend>Display Options</legend>
+      <p>
+        <label for="normalController">Normals:</label>
+        <button id="normalController">Turn On</button>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Lights</legend>
+      <p>
+        <label for="spotlightController">Spot Light:</label>
+        <button id="spotlightController">Turn Off</button>
+      </p>
+      <p>
+        <label for="lightController">Point Light:</label>
+        <button id="lightController">Turn Off</button>
+      </p>
+      <p>
+        <label for="lightAnimationController">Point Light Animation:</label>
+        <button id="lightAnimationController">Turn Off</button>
+      </p>
+      <p>
+        <label for="lightX">Point Light X</label>
+        <input type="range" min="-16" max="16" value="5" id="lightX">
+      </p>
+      <p>
+        <label for="lightY">Point Light Y</label>
+        <input type="range" min="2" max="10" value="5" id="lightY">
+      </p>
+      <p>
+        <label for="lightZ">Point Light Z</label>
+        <input type="range" min="-16" max="16" value="5" id="lightZ">
+      </p>
+      <p>
+        <label for="lightXc">Light R</label>
+        <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightXc">
+      </p>
+      <p>
+        <label for="lightYc">Light G</label>
+        <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightYc">
+      </p>
+      <p>
+        <label for="lightZc">Light B</label>
+        <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightZc">
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Camera</legend>
+      <p>
+        <label for="cameraFOVc">Camera FOV</label>
+        <input type="range" min="15" max="135" step="15" value="45" id="cameraFOVc">
+      </p>
+      <p>
+        <label for="cameraNEARc">Camera Near</label>
+        <input type="range" min="0.001" max="10.001" step="1" value="0.001" id="cameraNEARc">
+      </p>
+      <p>
+        <label for="cameraFARc">Camera Far</label>
+        <input type="range" min="2" max="200" step="10" value="100" id="cameraFARc">
+      </p>
+    </fieldset>
+
     <p id="perf">perfstats:</p>
   </div>
-  
+
+
   <script src="./lib/webgl-utils.js"></script>
   <script src="./lib/webgl-debug.js"></script>
   <script src="./lib/cuon-matrix-cse160.js"></script>
@@ -173,7 +103,7 @@
   <script src="./lib/cylinder.js"></script>
   <script src="./lib/camera.js"></script>
   <script src="./lib/game.js"></script>
-  <script src="asg4.js"></script>
+  <script src="script.js"></script>
 </body>
 
 </html>
