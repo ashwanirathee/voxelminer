@@ -4,12 +4,14 @@ VoxelMiner is an interactive 3D graphics engine developed using WebGL, originall
 ### 🚀 Key Features
 #### 🎮 Camera & Navigation
 - Movement Controls:
-  - W – Move Forward
-  - S – Move Backward
-  - A – Move Left
-  - D – Move Right
-  - Q – Pan Left
-  - E – Pan Right
+    - W – Move Forward
+    - S – Move Backward
+    - A – Move Left
+    - D – Move Right
+    - Q – Pan Left
+    - E – Pan Right
+    - R – Move Up
+    - F – Move Down
 
 - Customizable View:
     - Adjustable Field of View (FOV)
@@ -57,6 +59,10 @@ VoxelMiner is an interactive 3D graphics engine developed using WebGL, originall
 - Real-Time Stats:
     - Frame rate (FPS) monitor
     - Frame render time display
+
+- Added support for fine-grained debugging
+    - Toggle debug mode for detailed information in specific files
+    - Debugging information is displayed in the console and some data can be global debug log
 
 ### 📚 Original Assignment
 The foundation of this project was developed as part of a UCSC course assignment:
