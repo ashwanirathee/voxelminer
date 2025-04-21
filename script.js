@@ -1,3 +1,3 @@
-import {main} from './lib/global.js';
+import { main } from "./lib/global.js";
 
 main();
