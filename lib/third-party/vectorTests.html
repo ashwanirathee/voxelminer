@@ -26,9 +26,11 @@
   <br>
   Test 9 normalize([-87, 22, 66.45623]): <span id=test9></span>
 
-  <script src="cuon-matrix-cse160.js"></script>
-  <script>
+  <script type="module">
+    import { Vector3 } from './cuon-matrix-cse160.js'
+
     var ERROR = 0.1
+    let passed;
 
     function verify(vect, sol, text) {
       passed = vect.every((val, i) => Math.abs(val - sol[i]) < ERROR)
