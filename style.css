@@ -102,3 +102,32 @@ legend {
 .github-button:hover {
   background-color: rgba(255, 255, 255, 0.25);
 }
+
+#crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+#crosshair .vertical,
+#crosshair .horizontal {
+  position: absolute;
+  background-color: white;
+  opacity: 1.0;
+  border-radius: 1px;
+}
+
+#crosshair .vertical {
+  width: 4px;
+  height: 40px; /* Taller vertical bar */
+  top: -18px; /* shift up */
+}
+
+#crosshair .horizontal {
+  width: 40px; /* Wider horizontal bar */
+  height: 4px;
+  left: -18px; /* shift left */
+}

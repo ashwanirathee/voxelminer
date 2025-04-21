@@ -12,10 +12,12 @@ VoxelMiner is an interactive 3D graphics engine developed using WebGL, originall
     - E – Pan Right
     - R – Move Up
     - F – Move Down
-
+    
 - Customizable View:
     - Adjustable Field of View (FOV)
     - Configurable Near & Far Clipping Planes
+    - Adjustable camera speed(T,G), pan speed(Y,H)
+    - Currently set up to handle only information in lowercase(easy to change).
 
 #### 💡 Lighting System
 - Phong Lighting Model
@@ -37,6 +39,8 @@ VoxelMiner is an interactive 3D graphics engine developed using WebGL, originall
 
 - Skybox Rendering
     - Immersive skybox to simulate environment background
+- Crosshair
+    - Centered crosshair for better navigation
 
 ### ⛏️ Interaction & World Mechanics
 - Block Mechanics:
