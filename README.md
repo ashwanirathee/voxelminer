@@ -1,5 +1,5 @@
 # 💎 VoxelMiner
-VoxelMiner is an interactive 3D graphics engine developed using WebGL, originally created as a project for CSE 160 at UCSC, and later enhanced with additional features. It enables users to explore and interact with a voxel-based 3D environment, complete with real-time lighting, textures, camera movement, and advanced rendering techniques.
+VoxelMiner is an interactive 3D graphics engine developed using WebGL, originally created as a project for CSE 160 at UCSC, and later enhanced with additional features. It enables users to explore and interact with a voxel-based 3D environment, complete with real-time lighting, textures, camera movement, and advanced rendering techniques. SceneGraph, Renderer, Camera are the main components which are modular with their responsibilities. The engine is designed to be extensible, allowing for future enhancements and features.
 
 ### 🚀 Key Features
 #### 🎮 Camera & Navigation
