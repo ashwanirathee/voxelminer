@@ -1,7 +1,12 @@
+import * as VoxelMiner from "./lib/index.js";
+import { Game } from "./game/game.js";
+
 /**
- * This is the main script file for the graphics project.
- * It imports the `main` function from the `global.js` module and calls it.
+ * The main function that initializes the game.
  */
-import { main } from "./lib/global.js";
+function main() {
+  const game = new Game();
+  game.init();
+}
 
 main();

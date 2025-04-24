@@ -21,7 +21,22 @@
   </canvas>
 
   <div class="overlay">
-
+    <fieldset>
+      <legend>Performance Metrics</legend>
+      <p>
+        <label for="frameRateValue">Frame Rate</label>
+        <span id="frameRateValue">45</span>
+      </p>
+      <p>
+        <label for="frameTimeValue">Frame Time(ms)</label>
+        <span id="frameTimeValue">45</span>
+      </p>
+      <p>
+        <label for="drawCallsValue">Draw Calls</label>
+        <span id="drawCallsValue">45</span>
+      </p>
+    </fieldset>
+    
     <fieldset>
       <legend>Display Options</legend>
       <p>
@@ -33,40 +48,8 @@
     <fieldset>
       <legend>Lights</legend>
       <p>
-        <label for="spotlightController">Spot Light:</label>
-        <button id="spotlightController">Turn Off</button>
-      </p>
-      <p>
-        <label for="lightController">Point Light:</label>
-        <button id="lightController">Turn Off</button>
-      </p>
-      <p>
         <label for="lightAnimationController">Point Light Animation:</label>
         <button id="lightAnimationController">Turn Off</button>
-      </p>
-      <p>
-        <label for="lightX">Point Light X</label>
-        <input type="range" min="-16" max="16" value="5" id="lightX">
-      </p>
-      <p>
-        <label for="lightY">Point Light Y</label>
-        <input type="range" min="2" max="10" value="5" id="lightY">
-      </p>
-      <p>
-        <label for="lightZ">Point Light Z</label>
-        <input type="range" min="-16" max="16" value="5" id="lightZ">
-      </p>
-      <p>
-        <label for="lightXc">Light R</label>
-        <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightXc">
-      </p>
-      <p>
-        <label for="lightYc">Light G</label>
-        <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightYc">
-      </p>
-      <p>
-        <label for="lightZc">Light B</label>
-        <input type="range" min="0" max="1" step="0.1" value="0.5" id="lightZc">
       </p>
     </fieldset>
 
@@ -98,8 +81,7 @@
         <span id="cameraAlphacValue">2</span>
       </p>
     </fieldset>
-    
-    <p id="perf">perfstats:</p>
+  
   </div>
 
   <script type="module" src="script.js"></script>
