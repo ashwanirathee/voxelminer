@@ -1,4 +1,4 @@
-import * as VoxelMiner from "./../lib/index.js";
+import * as VoxelMiner from "../../lib/index.js";
 import { canvas, gl } from "./game.js";
 
 const debugkey = "camera_manager";

@@ -1,4 +1,4 @@
-import * as VoxelMiner from "./../lib/index.js";
+import * as VoxelMiner from "../../lib/index.js";
 import { CameraManager } from "./camera-manager.js";
 import { SceneManager } from "./scene-manager.js";
 import { RenderManager } from "./render-manager.js";

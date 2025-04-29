@@ -1,5 +1,5 @@
-import * as VoxelMiner from "./../lib/index.js";
-import { canvas, gl } from "./game.js";
+import * as VoxelMiner from "../../lib/index.js";
+import { gl } from "./game.js";
 
 const debugkey = "scene_manager";
 

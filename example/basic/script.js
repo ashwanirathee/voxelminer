@@ -1,5 +1,4 @@
-import * as VoxelMiner from "./lib/index.js";
-import { Game } from "./game/game.js";
+import { Game } from "./game.js";
 
 /**
  * The main function that initializes the game.

@@ -1,6 +1,5 @@
-import * as VoxelMiner from "./../lib/index.js";
-import { canvas, gl } from "./game.js";
-import { initShaders } from "./../lib/third-party/cuon-utils.js";
+import * as VoxelMiner from "../../lib/index.js";
+import { gl } from "./game.js";
 
 const debugkey = "render_manager";
 
