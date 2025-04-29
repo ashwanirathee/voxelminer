@@ -19,33 +19,6 @@ canvas {
   z-index: 0;
 }
 
-.overlay {
-  position: absolute;
-  top: 50px;
-  right: 10px;
-  background-color: rgba(0, 0, 0, 0.7); /* semi-transparent black */
-  color: white;
-  padding: 16px;
-  border-radius: 10px;
-  max-height: 85%;
-  overflow-y: auto;
-  z-index: 1;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  width: 20%;
-}
-
-.overlay.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-
-
-input[type="range"] {
-  width: 30%;
-}
-
 label {
   display: block;
   /* font-weight: bold; */
@@ -55,34 +28,6 @@ label {
 p {
   margin-bottom: 12px;
 }
-
-fieldset {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 16px;
-}
-
-legend {
-  padding: 0 8px;
-  font-weight: bold;
-  color: #fff;
-}
-
-.toggle-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 2;
-    padding: 8px 12px;
-    font-size: 14px;
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid white;
-    border-radius: 6px;
-    text-decoration: none;
-    cursor: pointer;
-  }
 
 .github-button {
   position: absolute;
@@ -101,33 +46,4 @@ legend {
 
 .github-button:hover {
   background-color: rgba(255, 255, 255, 0.25);
-}
-
-#crosshair {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 9999;
-}
-
-#crosshair .vertical,
-#crosshair .horizontal {
-  position: absolute;
-  background-color: white;
-  opacity: 1.0;
-  border-radius: 1px;
-}
-
-#crosshair .vertical {
-  width: 4px;
-  height: 40px; /* Taller vertical bar */
-  top: -18px; /* shift up */
-}
-
-#crosshair .horizontal {
-  width: 40px; /* Wider horizontal bar */
-  height: 4px;
-  left: -18px; /* shift left */
 }

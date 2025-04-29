@@ -1,22 +1,9 @@
 import * as VoxelMiner from "../../lib/index.js";
-import { canvas, gl } from "./game.js";
+import { canvas, gl, gui, obj } from "./game.js";
 
 const debugkey = "input_manager";
 
 VoxelMiner.debugLog(debugkey, "Loading input_manager...");
-
-const lightAnimationController = document.getElementById("lightAnimationController");
-const cameraFOVc = document.getElementById("cameraFOVc");
-const cameraNEARc = document.getElementById("cameraNEARc");
-const cameraFARc = document.getElementById("cameraFARc");
-const normalController = document.getElementById("normalController");
-const cameraSpeedc = document.getElementById("cameraSpeedc");
-const cameraAlphac = document.getElementById("cameraAlphac");
-const cameraFOVcValue = document.getElementById("cameraFOVcValue");
-const cameraNEARcValue = document.getElementById("cameraNEARcValue");
-const cameraFARcValue = document.getElementById("cameraFARcValue");
-const cameraSpeedcValue = document.getElementById("cameraSpeedcValue");
-const cameraAlphacValue = document.getElementById("cameraAlphacValue");
 
 /**
  * Class representing an Input Manager.
@@ -38,7 +25,12 @@ export class InputManager {
     const camera = this.camera;
 
     window.addEventListener("resize", () => {
-      VoxelMiner.resizeCanvas(camera, canvas, gl);
+      obj.camera_aspect = VoxelMiner.resizeCanvas(
+        camera,
+        scene,
+        canvas,
+        gl
+      ).toFixed(2);
     });
 
     canvas.addEventListener("click", async () => {
@@ -56,40 +48,60 @@ export class InputManager {
       event.preventDefault(); // Disable right-click menu
     });
 
-    normalController.addEventListener("click", () => {
-      scene.normalControllerState = !scene.normalControllerState;
-      normalController.textContent = "Turn " + (scene.normalControllerState ? "Off" : "On");
+    // nested controllers
+    const general_folder = gui.addFolder("General");
+    general_folder.add(obj, "frame_rate").listen().disable();
+    general_folder.add(obj, "frame_time").listen().disable();
+    general_folder.add(obj, "draw_calls").listen().disable();
+    general_folder.add(obj, "show_normals").onChange((value) => {
+      scene.normalControllerState = value;
     });
 
-    document.querySelector(".toggle-button").addEventListener("click", () => {
-      this.toggleOverlay();
+    // nested controllers
+    const light_folder = gui.addFolder("Light");
+    light_folder.add(obj, "animate_light").onChange((value) => {
+      scene.animate_light = value;
     });
 
-    lightAnimationController.addEventListener("click", () => {
-      scene.animate_light = !scene.animate_light;
-      lightAnimationController.textContent = "Turn " + (scene.animate_light ? "Off" : "On");
+    light_folder.addColor(obj, "light1_color").onChange((value) => {
+      scene.pointLights[0].color = value;
     });
 
-    // camera related
-    cameraFOVc.addEventListener("input", () => {
-      camera.changeFov(parseFloat(cameraFOVc.value));
+    light_folder.addColor(obj, "light2_color").onChange((value) => {
+      scene.pointLights[1].color = value;
     });
 
-    cameraNEARc.addEventListener("input", () => {
-      camera.changeNEAR(parseFloat(cameraNEARc.value));
+    light_folder.addColor(obj, "light3_color").onChange((value) => {
+      scene.pointLights[2].color = value;
     });
 
-    cameraFARc.addEventListener("input", () => {
-      camera.changeFAR(parseFloat(cameraFARc.value));
+    light_folder.addColor(obj, "light4_color").onChange((value) => {
+      scene.pointLights[3].color = value;
     });
 
-    cameraSpeedc.addEventListener("input", () => {
-      camera.changeSpeed(parseFloat(cameraSpeedc.value));
+    const camera_folder = gui.addFolder("Camera");
+
+    camera_folder.add(obj, "camera_fov", 15, 135).onChange((value) => {
+      camera.changeFov(value);
     });
 
-    cameraAlphac.addEventListener("input", () => {
-      camera.changeAlpha(parseFloat(cameraAlphac.value));
+    camera_folder.add(obj, "camera_near", 0.001, 10.0001).onChange((value) => {
+      camera.changeNEAR(value);
     });
+
+    camera_folder.add(obj, "camera_far", 0.1, 200).onChange((value) => {
+      camera.changeFAR(value);
+    });
+
+    camera_folder.add(obj, "camera_speed", 0.1, 2).onChange((value) => {
+      camera.changeSpeed(value);
+    });
+
+    camera_folder.add(obj, "camera_alpha", 0, 10).onChange((value) => {
+      camera.changeAlpha(value);
+    });
+
+    camera_folder.add(obj, "camera_aspect").listen().disable();
 
     VoxelMiner.debugLog(debugkey, "Adding keyboard event listeners");
     document.addEventListener("keydown", function (event) {
@@ -137,6 +149,8 @@ export class InputManager {
           break;
       }
     });
+
+    gui.add(obj, "help"); // button
   }
 
   /**

@@ -1,5 +1,5 @@
 import * as VoxelMiner from "../../lib/index.js";
-import { gl } from "./game.js";
+import { gl, obj } from "./game.js";
 
 const debugkey = "scene_manager";
 
@@ -15,6 +15,7 @@ export class SceneManager {
     this.addObjects();
     this.addSkyBox();
     this.addLights();
+    this.addCrosshair();
   }
 
   /**
@@ -58,13 +59,17 @@ export class SceneManager {
    */
   addLights() {
     VoxelMiner.debugLog(debugkey, "Adding lights to scene graph");
-    const light1 = new VoxelMiner.PointLight(gl, [15, 3, -15], [0, 1, 0], 1);
-    const light2 = new VoxelMiner.PointLight(gl, [15, 3, 15], [1, 0, 0], 1);
-    const light3 = new VoxelMiner.PointLight(gl, [-15, 3, 15], [0, 0, 1], 1);
-    const light4 = new VoxelMiner.PointLight(gl, [-15, 3, -15], [1, 1, 0], 1);
+    const light1 = new VoxelMiner.PointLight(gl, [15, 3, -15], obj.light1_color, 1);
+    const light2 = new VoxelMiner.PointLight(gl, [15, 3, 15], obj.light2_color, 1);
+    const light3 = new VoxelMiner.PointLight(gl, [-15, 3, 15], obj.light3_color, 1);
+    const light4 = new VoxelMiner.PointLight(gl, [-15, 3, -15], obj.light4_color, 1);
     this.scene.addLight(light1);
     this.scene.addLight(light2);
     this.scene.addLight(light3);
     this.scene.addLight(light4);
+  }
+
+  addCrosshair(){
+    this.scene.crosshair = new VoxelMiner.Crosshair(gl);
   }
 }
