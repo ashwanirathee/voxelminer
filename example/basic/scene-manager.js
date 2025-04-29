@@ -32,8 +32,17 @@ export class SceneManager {
     floor.matrix.translate(0, -0.5, 0);
     floor.matrix.scale(-32, 0.01, -32);
 
+    let point1 = new VoxelMiner.Point([0.0, 0.0,0.0, 1.0], [1.0, 0.0, 0.0, 1.0], 5, gl);
+    point1.matrix.translate(0, 2, 0); 
+
+    let triangle = new VoxelMiner.Triangle([0.0, 0.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0], 20, gl); 
+    triangle.matrix.translate(1, 0, 0);
+
     this.scene.push(ball);
     this.scene.push(floor);
+    this.scene.push(point1);
+    this.scene.push(triangle)
+
   }
 
   /**

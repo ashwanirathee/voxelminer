@@ -24,18 +24,27 @@ export class RenderManager {
   render() {
     this.g_seconds = performance.now() / 1000 - this.g_startTime;
 
-    this.renderer.render(this.sceneManager.scene, this.cameraManager.camera);
-
-    if (this.sceneManager.scene.animate_light) {
+    const scene = this.sceneManager.scene;
+    const pointLights = scene.pointLights;
+  
+    const radius = 10;
+    const height = 5;
+    const phaseOffsets = this.phaseOffsets;
+    const sin = Math.sin(this.g_seconds);
+    const cos = Math.cos(this.g_seconds);
+  
+    this.renderer.render(scene, this.cameraManager.camera);
+  
+    if (scene.animate_light) {
       for (let i = 0; i < 4; i++) {
-        const angle = this.g_seconds + this.phaseOffsets[i];
-
-        this.sceneManager.scene.pointLights[i].pos[0] = 10 * Math.sin(angle);
-        this.sceneManager.scene.pointLights[i].pos[2] = 10 * Math.cos(angle);
-        this.sceneManager.scene.pointLights[i].pos[1] = 5;
+        const angle = this.g_seconds + phaseOffsets[i];
+        
+        pointLights[i].pos[0] = radius * Math.sin(angle);
+        pointLights[i].pos[2] = radius * Math.cos(angle);
+        pointLights[i].pos[1] = height;
       }
     }
-
-    requestAnimationFrame(this.render.bind(this));
+  
+    requestAnimationFrame(() => this.render());
   }
 }
