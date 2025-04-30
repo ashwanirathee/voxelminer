@@ -119,6 +119,18 @@ export class InputManager {
 
     camera_folder.add(obj, "camera_aspect").listen().disable();
 
+    camera_folder.add(obj, "fallOffStart", 0.1, 1.0).onChange((value) => {
+      scene.fallOffStart = value;
+    });
+
+    camera_folder.add(obj, "fallOffEnd", 0.1, 1.0).onChange((value) => {
+      scene.fallOffEnd = value;
+    });
+
+    camera_folder.add(obj, "fallOffStepExponent", 0.1, 10).onChange((value) => {
+      scene.fallOffStepExponent = value;
+    });
+
     VoxelMiner.debugLog(debugkey, "Adding keyboard event listeners");
     document.addEventListener("keydown", function (event) {
       VoxelMiner.debugLog(debugkey, "Pressed:", event.key);

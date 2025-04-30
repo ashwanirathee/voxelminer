@@ -41,12 +41,17 @@ export class SceneManager {
 
     let circle = new VoxelMiner.Circle([-5.0, 5.0, -5.0, 1.0], [1.0, 0.0, 0.0, 1.0], 3, 10, gl);
     circle.matrix.translate(1, 2, 0);
+    
+    let ellipsoid = new VoxelMiner.Ellipsoid([0.0, 0.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0], 2, 3, 4, 10, gl);
+    ellipsoid.matrix.translate(0, 2, 0);
+    ellipsoid.matrix.scale(0.5, 0.5, 0.5);
 
     this.scene.push(ball);
     this.scene.push(floor);
     this.scene.push(point1);
     this.scene.push(triangle);
     this.scene.push(circle);
+    this.scene.push(ellipsoid);
 
   }
 

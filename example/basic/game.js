@@ -33,6 +33,10 @@ export var obj = {
   frame_rate: 0,
   frame_time: 0,
   draw_calls: 0,
+
+  fallOffStart: 1.0,
+  fallOffEnd: 0.0,
+  fallOffStepExponent: 2.0,
 }
 
 /**
