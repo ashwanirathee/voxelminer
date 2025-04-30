@@ -10,7 +10,7 @@ VoxelMiner.debugLog(debugkey, "Loading camera_manager...");
  */
 export class CameraManager {
   constructor(scene) {
-    this.camera = new VoxelMiner.Camera(1, 2, [5, 3, 5], [-0.01, 3, -0.01], [0, 1, 0], 60.0, canvas.width / canvas.height, 0.001, 100, gl, scene);
+    this.camera = new VoxelMiner.Camera(1, 0.1, [5, 3, 5], [-0.01, 3, -0.01], [0, 1, 0], 60.0, canvas.width / canvas.height, 0.001, 100, gl, scene);
     this.camera.init();
   }
 }

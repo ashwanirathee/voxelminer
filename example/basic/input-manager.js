@@ -194,11 +194,8 @@ export class InputManager {
     if (document.pointerLockElement !== canvas) return;
 
     const currentMousePosition = [event.movementX, event.movementY];
-    if (currentMousePosition[0] > 0) {
-      this.camera.panLeft();
-    } else {
-      this.camera.panRight();
-    }
+
+    this.camera.panCamera(currentMousePosition[0], currentMousePosition[1]);
   }
 
   /**
