@@ -39,10 +39,14 @@ export class SceneManager {
     let triangle = new VoxelMiner.Triangle([0.0, 0.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0], 20, gl); 
     triangle.matrix.translate(1, 0, 0);
 
+    let circle = new VoxelMiner.Circle([-5.0, 5.0, -5.0, 1.0], [1.0, 0.0, 0.0, 1.0], 3, 10, gl);
+    circle.matrix.translate(1, 2, 0);
+
     this.scene.push(ball);
     this.scene.push(floor);
     this.scene.push(point1);
-    this.scene.push(triangle)
+    this.scene.push(triangle);
+    this.scene.push(circle);
 
   }
 

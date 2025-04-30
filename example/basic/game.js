@@ -12,11 +12,17 @@ export const gui = new GUI();
 export var obj = {
   help: function () { alert('Hi! You might need to click on the screen to get a pointer lock which will allow you to move around in the world. Both keyboard and mouse provide controls!. Hope you like it!') },
   show_normals: false,
+
   animate_light: true,
   light1_color: [1.0, 0.0, 0.0],
   light2_color: [0.0, 1.0, 0.0],
   light3_color: [0.0, 0.0, 1.0],
   light4_color: [1.0, 0.0, 1.0],
+  ambientLightFactor: 0.5,
+  diffuseLightFactor: 0.7,
+  specularLightFactor: 0.6,
+  specularExponent: 16,
+
   camera_fov: 45,
   camera_near: 0.001,
   camera_far: 100,

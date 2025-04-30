@@ -79,6 +79,22 @@ export class InputManager {
       scene.pointLights[3].color = value;
     });
 
+    light_folder.add(obj, "ambientLightFactor", 0, 1).onChange((value) => {
+      scene.ambientLightFactor = value;
+    });
+
+    light_folder.add(obj, "diffuseLightFactor", 0, 1).onChange((value) => {
+      scene.diffuseLightFactor = value;
+    });
+
+    light_folder.add(obj, "specularLightFactor", 0, 1).onChange((value) => {
+      scene.specularLightFactor = value;
+    });
+
+    light_folder.add(obj, "specularExponent", 1, 100).onChange((value) => {
+      scene.specularExponent = value;
+    });
+
     const camera_folder = gui.addFolder("Camera");
 
     camera_folder.add(obj, "camera_fov", 15, 135).onChange((value) => {
