@@ -12,13 +12,13 @@ export class InputManager {
   constructor(sceneManager, cameraManager) {
     this.scene = sceneManager.scene;
     this.camera = cameraManager.camera;
-    this.addEventListeners();
+    this.addEventListeners(sceneManager, cameraManager);
   }
 
   /**
    * Adds event listeners for the input manager.
    */
-  addEventListeners() {
+  addEventListeners(sceneManager, cameraManager) {
     VoxelMiner.debugLog(debugkey, "Adding event listeners");
 
     const scene = this.scene;
@@ -77,6 +77,10 @@ export class InputManager {
 
     light_folder.addColor(obj, "light4_color").onChange((value) => {
       scene.pointLights[3].color = value;
+    });
+
+    light_folder.addColor(obj, "sphere_color").onChange((value) => {
+      sceneManager.ball.color = [value[0], value[1], value[2], 1.0];
     });
 
     light_folder.add(obj, "ambientLightFactor", 0, 1).onChange((value) => {

@@ -12,6 +12,7 @@ export class SceneManager {
   constructor() {
     this.scene = new VoxelMiner.SceneGraph(gl);
     this.scene.init();
+    this.ball = null;
     this.addObjects();
     this.addSkyBox();
     this.addLights();
@@ -24,9 +25,9 @@ export class SceneManager {
   addObjects() {
     VoxelMiner.debugLog(debugkey, "Adding objects to scene graph");
 
-    var ball = new VoxelMiner.Sphere(1, 10, 10, -6, 2, gl); // radius 50, 20x20 resolution
-    ball.matrix.translate(0, 1, 0);
-    ball.matrix.scale(0.5, 0.5, 0.5);
+    this.ball = new VoxelMiner.Sphere(1, 30, 30, -2, [0.0, 1.0, 1.0, 1.0], gl); // radius 50, 20x20 resolution
+    this.ball.matrix.translate(0, 1, 0);
+    this.ball.matrix.scale(0.5, 0.5, 0.5);
 
     let floor = new VoxelMiner.Cube(2, 3, gl);
     floor.color = [0.49, 0.788, 0.29, 1.0];
@@ -46,7 +47,7 @@ export class SceneManager {
     ellipsoid.matrix.translate(0, 2, 0);
     ellipsoid.matrix.scale(0.5, 0.5, 0.5);
 
-    this.scene.push(ball);
+    this.scene.push(this.ball);
     this.scene.push(floor);
     this.scene.push(point1);
     this.scene.push(triangle);

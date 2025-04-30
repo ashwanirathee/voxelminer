@@ -18,6 +18,8 @@ export var obj = {
   light2_color: [0.0, 1.0, 0.0],
   light3_color: [0.0, 0.0, 1.0],
   light4_color: [1.0, 0.0, 1.0],
+  sphere_color: [0.0, 2.0, 0.0],
+
   ambientLightFactor: 0.5,
   diffuseLightFactor: 0.7,
   specularLightFactor: 0.6,
