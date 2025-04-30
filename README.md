@@ -91,8 +91,3 @@ Example of a basic scene is in game/ where index.html + script.js utilize the ga
 
 - Focus on single responsibility principle for each module
     - Each module is designed to handle a specific aspect of the engine, promoting modularity and maintainability
-
-### 📚 Original Assignment
-The foundation of this project was developed as part of a UCSC course assignment:
-[🔗 CSE160 Assignment 4 – WebGL Engine](https://github.com/ashwanirathee/cs/tree/main/ucsc/cse160/asg4)
-
