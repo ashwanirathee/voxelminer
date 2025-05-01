@@ -25,6 +25,7 @@ export var obj = {
   specularLightFactor: 0.6,
   specularExponent: 16,
 
+  camera_type: "FPS Camera",
   camera_fov: 45,
   camera_near: 0.001,
   camera_far: 100,

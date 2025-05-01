@@ -44,6 +44,8 @@ export class InputManager {
 
     canvas.onmousemove = (event) => this.handleMouseMove(event);
 
+    canvas.addEventListener('wheel', this.handleWheel.bind(this));
+
     canvas.addEventListener("contextmenu", (event) => {
       event.preventDefault(); // Disable right-click menu
     });
@@ -99,7 +101,19 @@ export class InputManager {
       scene.specularExponent = value;
     });
 
+    const cameraTypeOptions = {
+      "FPS Camera":     VoxelMiner.CameraType.FPS_CAMERA,
+      "Arcball Camera": VoxelMiner.CameraType.ARCBALL_CAMERA
+    };
+    
     const camera_folder = gui.addFolder("Camera");
+
+    camera_folder
+      .add(obj, "camera_type", cameraTypeOptions)
+      .name("Camera Type")
+      .onChange((selectedType) => {
+        camera.changeCameraType(selectedType);
+    });
 
     camera_folder.add(obj, "camera_fov", 15, 135).onChange((value) => {
       camera.changeFov(value);
@@ -195,6 +209,29 @@ export class InputManager {
 
     const currentMousePosition = [event.movementX, event.movementY];
     this.camera.panCamera(currentMousePosition[0], currentMousePosition[1]);
+  }
+
+  /**
+ * Handles mouse wheel (scroll) event to move camera forward/backward.
+ *
+ * @param {WheelEvent} event - The wheel event.
+ */
+  handleWheel(event) {
+    if (document.pointerLockElement !== canvas) return;
+
+    if (event.deltaY < 0) {
+      if(this.camera.type === VoxelMiner.CameraType.FPS_CAMERA)
+        this.camera.moveForward(-event.deltaY);
+      else this.camera.changeOrbitRadiusByOffset(event.deltaY);
+    } 
+    
+    else {
+      if(this.camera.type === VoxelMiner.CameraType.FPS_CAMERA)
+        this.camera.moveBackward(event.deltaY);
+      else this.camera.changeOrbitRadiusByOffset(event.deltaY);
+    }
+
+    event.preventDefault();
   }
 
   /**

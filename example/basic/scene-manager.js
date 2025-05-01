@@ -53,7 +53,6 @@ export class SceneManager {
     this.scene.push(triangle);
     this.scene.push(circle);
     this.scene.push(ellipsoid);
-
   }
 
   /**
