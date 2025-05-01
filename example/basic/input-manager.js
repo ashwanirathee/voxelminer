@@ -220,9 +220,15 @@ export class InputManager {
     if (document.pointerLockElement !== canvas) return;
 
     if (event.deltaY < 0) {
-      this.camera.moveForward(-event.deltaY);
-    } else {
-      this.camera.moveBackward(event.deltaY);
+      if(this.camera.type === VoxelMiner.CameraType.FPS_CAMERA)
+        this.camera.moveForward(-event.deltaY);
+      else this.camera.changeOrbitRadiusByOffset(event.deltaY);
+    } 
+    
+    else {
+      if(this.camera.type === VoxelMiner.CameraType.FPS_CAMERA)
+        this.camera.moveBackward(event.deltaY);
+      else this.camera.changeOrbitRadiusByOffset(event.deltaY);
     }
 
     event.preventDefault();
