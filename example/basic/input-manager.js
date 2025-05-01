@@ -44,6 +44,8 @@ export class InputManager {
 
     canvas.onmousemove = (event) => this.handleMouseMove(event);
 
+    canvas.addEventListener('wheel', this.handleWheel.bind(this));
+
     canvas.addEventListener("contextmenu", (event) => {
       event.preventDefault(); // Disable right-click menu
     });
@@ -195,6 +197,24 @@ export class InputManager {
 
     const currentMousePosition = [event.movementX, event.movementY];
     this.camera.panCamera(currentMousePosition[0], currentMousePosition[1]);
+  }
+
+  /**
+ * Handles mouse wheel (scroll) event to move camera forward/backward.
+ *
+ * @param {WheelEvent} event - The wheel event.
+ */
+  handleWheel(event) {
+    if (document.pointerLockElement !== canvas) return;
+
+    if (event.deltaY < 0) {
+      this.camera.moveForward(-event.deltaY);
+    } else {
+      this.camera.moveBackward(event.deltaY);
+    }
+
+    // prevent the page from scrolling
+    event.preventDefault();
   }
 
   /**
