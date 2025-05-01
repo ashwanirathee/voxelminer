@@ -101,7 +101,20 @@ export class InputManager {
       scene.specularExponent = value;
     });
 
+    const cameraTypeOptions = {
+      "FPS Camera":     VoxelMiner.CameraType.FPS_CAMERA,
+      "Arcball Camera": VoxelMiner.CameraType.ARCBALL_CAMERA
+    };
+    
     const camera_folder = gui.addFolder("Camera");
+
+    camera_folder
+      .add(obj, "camera_type", cameraTypeOptions)
+      .name("Camera Type")
+      .onChange((selectedLabel) => {
+        const selectedType = cameraTypeOptions[selectedLabel];
+        camera.changeCameraType(selectedType);
+    });
 
     camera_folder.add(obj, "camera_fov", 15, 135).onChange((value) => {
       camera.changeFov(value);
