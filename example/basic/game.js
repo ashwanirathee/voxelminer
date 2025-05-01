@@ -29,7 +29,7 @@ export var obj = {
   camera_near: 0.001,
   camera_far: 100,
   camera_speed: 2,
-  camera_alpha: 5,
+  camera_sensitivity: 0.05,
   camera_aspect: 1,
 
   frame_rate: 0,

@@ -117,8 +117,8 @@ export class InputManager {
       camera.changeSpeed(value);
     });
 
-    camera_folder.add(obj, "camera_alpha", 0, 10).onChange((value) => {
-      camera.changeAlpha(value);
+    camera_folder.add(obj, "camera_sensitivity", 0.01, 2.0).onChange((value) => {
+      camera.changeSensitivity(value);
     });
 
     camera_folder.add(obj, "camera_aspect").listen().disable();
@@ -194,11 +194,7 @@ export class InputManager {
     if (document.pointerLockElement !== canvas) return;
 
     const currentMousePosition = [event.movementX, event.movementY];
-    if (currentMousePosition[0] > 0) {
-      this.camera.panLeft();
-    } else {
-      this.camera.panRight();
-    }
+    this.camera.panCamera(currentMousePosition[0], currentMousePosition[1]);
   }
 
   /**
