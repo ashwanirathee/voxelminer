@@ -111,8 +111,7 @@ export class InputManager {
     camera_folder
       .add(obj, "camera_type", cameraTypeOptions)
       .name("Camera Type")
-      .onChange((selectedLabel) => {
-        const selectedType = cameraTypeOptions[selectedLabel];
+      .onChange((selectedType) => {
         camera.changeCameraType(selectedType);
     });
 
@@ -226,7 +225,6 @@ export class InputManager {
       this.camera.moveBackward(event.deltaY);
     }
 
-    // prevent the page from scrolling
     event.preventDefault();
   }
 
