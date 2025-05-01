@@ -27,11 +27,14 @@ export var obj = {
 
   camera_type: "FPS Camera",
   camera_fov: 45,
-  camera_near: 0.001,
+  camera_near: 0.1,
   camera_far: 100,
   camera_speed: 2,
   camera_sensitivity: 0.05,
   camera_aspect: 1,
+  camera_eye: [5.0, 3.0, 5.0],
+  camera_at: [-0.01, 3, -0.01],
+  camera_up: [0, 1, 0],
 
   frame_rate: 0,
   frame_time: 0,

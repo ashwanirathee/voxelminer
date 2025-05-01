@@ -1,5 +1,5 @@
 import * as VoxelMiner from "../../lib/index.js";
-import { canvas, gl } from "./game.js";
+import { canvas, gl, obj } from "./game.js";
 
 const debugkey = "camera_manager";
 
@@ -10,8 +10,8 @@ VoxelMiner.debugLog(debugkey, "Loading camera_manager...");
  */
 export class CameraManager {
   constructor(scene) {
-    this.camera = new VoxelMiner.Camera(1, 0.05, [5, 3, 5], [-0.01, 3, -0.01], [0, 1, 0], 60.0, canvas.width / canvas.height, 0.001, 100, gl, scene);
+    this.camera = new VoxelMiner.Camera(obj.camera_speed, obj.camera_sensitivity, obj.camera_eye, obj.camera_at, obj.camera_up, obj.camera_fov, obj.camera_aspect, obj.camera_near, obj.camera_far, gl, scene);
     this.camera.init();
-    this.camera.changeAt(0,1,0);
+    this.camera.changeAt(0, 1, 0);
   }
 }
