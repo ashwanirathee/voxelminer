@@ -102,10 +102,10 @@ export class InputManager {
     });
 
     const cameraTypeOptions = {
-      "FPS Camera":     VoxelMiner.CameraType.FPS_CAMERA,
+      "FPS Camera": VoxelMiner.CameraType.FPS_CAMERA,
       "Arcball Camera": VoxelMiner.CameraType.ARCBALL_CAMERA
     };
-    
+
     const camera_folder = gui.addFolder("Camera");
 
     camera_folder
@@ -113,17 +113,17 @@ export class InputManager {
       .name("Camera Type")
       .onChange((selectedType) => {
         camera.changeCameraType(selectedType);
-    });
+      });
 
     camera_folder.add(obj, "camera_fov", 15, 135).onChange((value) => {
       camera.changeFov(value);
     });
 
-    camera_folder.add(obj, "camera_near", 0.001, 10.0001).onChange((value) => {
+    camera_folder.add(obj, "camera_near", 0.1, 10.0).onChange((value) => {
       camera.changeNEAR(value);
     });
 
-    camera_folder.add(obj, "camera_far", 0.1, 200).onChange((value) => {
+    camera_folder.add(obj, "camera_far", 11, 200).onChange((value) => {
       camera.changeFAR(value);
     });
 
@@ -220,13 +220,13 @@ export class InputManager {
     if (document.pointerLockElement !== canvas) return;
 
     if (event.deltaY < 0) {
-      if(this.camera.type === VoxelMiner.CameraType.FPS_CAMERA)
+      if (this.camera.type === VoxelMiner.CameraType.FPS_CAMERA)
         this.camera.moveForward(-event.deltaY);
       else this.camera.changeOrbitRadiusByOffset(event.deltaY);
-    } 
-    
+    }
+
     else {
-      if(this.camera.type === VoxelMiner.CameraType.FPS_CAMERA)
+      if (this.camera.type === VoxelMiner.CameraType.FPS_CAMERA)
         this.camera.moveBackward(event.deltaY);
       else this.camera.changeOrbitRadiusByOffset(event.deltaY);
     }

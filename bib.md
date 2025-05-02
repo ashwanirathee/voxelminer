@@ -8,3 +8,4 @@
 - skybox-set->clouds related are from http://www.spiney.me/ which were under CC0
 - texture.png is from https://github.com/fogleman/Craft
 - minecraft.mp3 is from C418, more information here: https://en.wikipedia.org/wiki/Music_of_Minecraft
+- Statue of the George Washington is from https://3d.si.edu/object/3d/george-washington:789cf90a-4387-4ac1-9e96-c7d6a7b9d26f, which is under CC0 and from Smithsonian.
