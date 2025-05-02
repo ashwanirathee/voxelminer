@@ -3,6 +3,10 @@ VoxelMiner is an interactive 3D graphics engine developed using WebGL, originall
 Example of a basic scene is in game/ where index.html + script.js utilize the game/ and lib/ to make a basic animation. VoxelMiner namespace holds the methods to use the engine.
 
 - [🔗 Basic Game](https://ashwanirathee.com/VoxelMiner/example/basic)
+- [🔗 Statue of George Washington(Smithsonian) with 400k vertex count](https://ashwanirathee.com/VoxelMiner/example/scan) displayed via VoxelMiner
+
+#### Example:
+<img src="./assets/george_washington.png" width="800" />
 
 ### 🚀 Key Features
 #### Core Modules
