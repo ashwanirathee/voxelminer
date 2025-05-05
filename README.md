@@ -8,6 +8,8 @@ Example of a basic scene is in game/ where index.html + script.js utilize the ga
 #### Example:
 <img src="./assets/george_washington.png" width="800" />
 
+- 3D WebGL2 Raster Engine with Renderer, Scene Graph, Camera(6 DoF FPS, Arcball), Phong Lighting, Input via keyboard, mouse
+
 ### 🚀 Key Features
 #### Core Modules
     - SceneGraph: Manages the 3D scene, including objects and their properties
