@@ -14,15 +14,10 @@ export var obj = {
   show_normals: false,
 
   animate_light: true,
-  light1_color: [1.0, 0.0, 0.0],
-  light2_color: [0.0, 1.0, 0.0],
-  light3_color: [0.0, 0.0, 1.0],
-  light4_color: [1.0, 0.0, 1.0],
-  sphere_color: [0.0, 2.0, 0.0],
-
-  ambientLightFactor: 0.5,
-  diffuseLightFactor: 0.7,
-  specularLightFactor: 0.6,
+  light1_color: [1.0, 1.0, 1.0],
+  ambientLightFactor: 0.8,
+  diffuseLightFactor: 0.5,
+  specularLightFactor: 0.2,
   specularExponent: 16,
 
   camera_type: "FPS Camera",
@@ -32,7 +27,7 @@ export var obj = {
   camera_speed: 2,
   camera_sensitivity: 0.05,
   camera_aspect: 1,
-  camera_eye: [5.0, 3.0, 5.0],
+  camera_eye: [13.0, 3.0, -3.0],
   camera_at: [-0.01, 3, -0.01],
   camera_up: [0, 1, 0],
 
