@@ -69,22 +69,6 @@ export class InputManager {
       scene.pointLights[0].color = value;
     });
 
-    light_folder.addColor(obj, "light2_color").onChange((value) => {
-      scene.pointLights[1].color = value;
-    });
-
-    light_folder.addColor(obj, "light3_color").onChange((value) => {
-      scene.pointLights[2].color = value;
-    });
-
-    light_folder.addColor(obj, "light4_color").onChange((value) => {
-      scene.pointLights[3].color = value;
-    });
-
-    light_folder.addColor(obj, "sphere_color").onChange((value) => {
-      sceneManager.ball.color = [value[0], value[1], value[2], 1.0];
-    });
-
     light_folder.add(obj, "ambientLightFactor", 0, 1).onChange((value) => {
       scene.ambientLightFactor = value;
     });

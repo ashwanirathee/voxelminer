@@ -70,16 +70,16 @@ export class RenderManager {
     const scene = this.sceneManager.scene;
     const pointLights = scene.pointLights;
   
-    const radius = 10;
+    const radius = 25;
     const height = 5;
     const phaseOffsets = this.phaseOffsets;
   
     if (scene.animate_light) {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 1; i++) {
         const angle = this.g_seconds + phaseOffsets[i];
         pointLights[i].pos[0] = radius * Math.sin(angle);
-        pointLights[i].pos[2] = radius * Math.cos(angle);
-        pointLights[i].pos[1] = height;
+        pointLights[i].pos[2] = height;
+        pointLights[i].pos[1] = radius * Math.cos(angle);;
       }
     }
   
