@@ -1,0 +1,8 @@
+site_name: voxelminer
+site_url: https://ashwanirathee.com/voxelminer/
+nav:
+  - Home: about.md
+  - Page: page.md
+theme:
+  name: readthedocs
+use_directory_urls: true
