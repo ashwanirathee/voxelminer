@@ -1,4 +1,4 @@
-import * as VoxelMiner from "../../lib/index.js";
+import * as VoxelMiner from "../../lib/webgl/index.js";
 import { gl, obj } from "./game.js";
 
 const debugkey = "render_manager";

@@ -1,4 +1,4 @@
-import * as VoxelMiner from "../../lib/index.js";
+import * as VoxelMiner from "../../lib/webgl/index.js";
 import { canvas, gl, gui, obj } from "./game.js";
 
 const debugkey = "input_manager";
@@ -69,22 +69,6 @@ export class InputManager {
       scene.pointLights[0].color = value;
     });
 
-    light_folder.addColor(obj, "light2_color").onChange((value) => {
-      scene.pointLights[1].color = value;
-    });
-
-    light_folder.addColor(obj, "light3_color").onChange((value) => {
-      scene.pointLights[2].color = value;
-    });
-
-    light_folder.addColor(obj, "light4_color").onChange((value) => {
-      scene.pointLights[3].color = value;
-    });
-
-    light_folder.addColor(obj, "sphere_color").onChange((value) => {
-      sceneManager.ball.color = [value[0], value[1], value[2], 1.0];
-    });
-
     light_folder.add(obj, "ambientLightFactor", 0, 1).onChange((value) => {
       scene.ambientLightFactor = value;
     });
@@ -108,6 +92,13 @@ export class InputManager {
 
     const camera_folder = gui.addFolder("Camera");
 
+    camera_folder
+      .add(obj, "camera_type", cameraTypeOptions)
+      .name("Camera Type")
+      .onChange((selectedType) => {
+        camera.changeCameraType(selectedType);
+      });
+
     camera_folder.add(obj, "camera_fov", 15, 135).onChange((value) => {
       camera.changeFov(value);
     });
@@ -120,12 +111,27 @@ export class InputManager {
       camera.changeFAR(value);
     });
 
+    camera_folder.add(obj, "camera_speed", 0.1, 2).onChange((value) => {
+      camera.changeSpeed(value);
+    });
+
     camera_folder.add(obj, "camera_sensitivity", 0.01, 2.0).onChange((value) => {
       camera.changeSensitivity(value);
     });
 
     camera_folder.add(obj, "camera_aspect").listen().disable();
 
+    camera_folder.add(obj, "fallOffStart", 0.1, 1.0).onChange((value) => {
+      scene.fallOffStart = value;
+    });
+
+    camera_folder.add(obj, "fallOffEnd", 0.1, 1.0).onChange((value) => {
+      scene.fallOffEnd = value;
+    });
+
+    camera_folder.add(obj, "fallOffStepExponent", 0.1, 10).onChange((value) => {
+      scene.fallOffStepExponent = value;
+    });
 
     VoxelMiner.debugLog(debugkey, "Adding keyboard event listeners");
     document.addEventListener("keydown", function (event) {

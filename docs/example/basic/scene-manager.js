@@ -1,4 +1,4 @@
-import * as VoxelMiner from "../../lib/index.js";
+import * as VoxelMiner from "../../lib/webgl/index.js";
 import { gl, obj } from "./game.js";
 import alea from 'https://cdn.jsdelivr.net/npm/alea@1.0.1/+esm';
 import { createNoise3D, createNoise2D } from 'https://cdn.jsdelivr.net/npm/simplex-noise@4.0.3/+esm';
