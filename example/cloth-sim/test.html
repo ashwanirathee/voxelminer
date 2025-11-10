@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="en">
+
+<head>
+	<title>Cloth Simulation</title>
+	<style>
+		body {
+			font-family: verdana;
+			font-size: 15px;
+		}
+
+		.button {
+			background-color: #606060;
+			border: none;
+			color: white;
+			padding: 15px 15px;
+			font-size: 15px;
+			margin: 4px 2px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h3>Cloth Simulation</h3>
+	<button id="buttonRun" onclick="run()" class="button">Run</button>
+	<button onclick="restart()" class="button">Restart</button>
+	<input type="checkbox" onclick="onShowEdges()"> Show edges</p>
+
+	<span id="numTris">0</span> tris&nbsp;&nbsp;
+	<span id="numVerts">0</span> verts&nbsp;&nbsp;
+	<span id="ms">0.000</span> ms per frame
+	<br>
+	Bending compliance:
+	<input type="range" min="0" max="10" value="1" id="bendingComplianceSlider" class="slider">
+
+
+	<br><br>
+	<div id="container"></div>
+
+	<script src="https://unpkg.com/three@0.139.2/build/three.min.js"></script>
+	<script src="https://unpkg.com/three@0.139.2/examples/js/controls/OrbitControls.js"></script>
+	<script src="https://unpkg.com/three@0.139.2/examples/js/utils/BufferGeometryUtils.js"></script>
+	<script src="https://unpkg.com/three@0.139.2/examples/js/loaders/OBJLoader.js"></script>
+
+	<script>
+		// ----- math on vector arrays -------------------------------------------------------------
+
+		function vecSetZero(a, anr) {
+			anr *= 3;
+			a[anr++] = 0.0;
+			a[anr++] = 0.0;
+			a[anr] = 0.0;
+		}
+
+		function vecScale(a, anr, scale) {
+			anr *= 3;
+			a[anr++] *= scale;
+			a[anr++] *= scale;
+			a[anr] *= scale;
+		}
+
+		function vecCopy(a, anr, b, bnr) {
+			anr *= 3; bnr *= 3;
+			a[anr++] = b[bnr++];
+			a[anr++] = b[bnr++];
+			a[anr] = b[bnr];
+		}
+
+		function vecAdd(a, anr, b, bnr, scale = 1.0) {
+			anr *= 3; bnr *= 3;
+			a[anr++] += b[bnr++] * scale;
+			a[anr++] += b[bnr++] * scale;
+			a[anr] += b[bnr] * scale;
+		}
+
+		function vecSetDiff(dst, dnr, a, anr, b, bnr, scale = 1.0) {
+			dnr *= 3; anr *= 3; bnr *= 3;
+			dst[dnr++] = (a[anr++] - b[bnr++]) * scale;
+			dst[dnr++] = (a[anr++] - b[bnr++]) * scale;
+			dst[dnr] = (a[anr] - b[bnr]) * scale;
+		}
+
+		function vecLengthSquared(a, anr) {
+			anr *= 3;
+			let a0 = a[anr], a1 = a[anr + 1], a2 = a[anr + 2];
+			return a0 * a0 + a1 * a1 + a2 * a2;
+		}
+
+		function vecDistSquared(a, anr, b, bnr) {
+			anr *= 3; bnr *= 3;
+			let a0 = a[anr] - b[bnr], a1 = a[anr + 1] - b[bnr + 1], a2 = a[anr + 2] - b[bnr + 2];
+			return a0 * a0 + a1 * a1 + a2 * a2;
+		}
+
+		function vecDot(a, anr, b, bnr) {
+			anr *= 3; bnr *= 3;
+			return a[anr] * b[bnr] + a[anr + 1] * b[bnr + 1] + a[anr + 2] * b[bnr + 2];
+		}
+
+		function vecSetCross(a, anr, b, bnr, c, cnr) {
+			anr *= 3; bnr *= 3; cnr *= 3;
+			a[anr++] = b[bnr + 1] * c[cnr + 2] - b[bnr + 2] * c[cnr + 1];
+			a[anr++] = b[bnr + 2] * c[cnr + 0] - b[bnr + 0] * c[cnr + 2];
+			a[anr] = b[bnr + 0] * c[cnr + 1] - b[bnr + 1] * c[cnr + 0];
+		}
+
+		var gThreeScene;
+		var gRenderer;
+		var gCamera;
+		var gCameraControl;
+		var gGrabber;
+		var gMouseDown = false;
+
+		// ------------------------------------------------------------------
+
+		var gPhysicsScene =
+		{
+			gravity: [0.0, -10.0, 0.0],
+			dt: 1.0 / 60.0,
+			numSubsteps: 15,
+			paused: true,
+			showEdges: false,
+			objects: [],
+		};
+
+		// ------------------------------------------------------------------
+		function onShowEdges() {
+			gPhysicsScene.showEdges = !gPhysicsScene.showEdges;
+			for (var i = 0; i < gPhysicsScene.objects.length; i++) {
+				gPhysicsScene.objects[i].edgeMesh.visible = gPhysicsScene.showEdges;
+				gPhysicsScene.objects[i].triMesh.visible = !gPhysicsScene.showEdges;
+			}
+		}
+
+		// ------------------------------------------------------------------
+		function findTriNeighbors(triIds) {
+			// create common edges
+
+			var edges = [];
+			var numTris = triIds.length / 3;
+
+			for (var i = 0; i < numTris; i++) {
+				for (var j = 0; j < 3; j++) {
+					var id0 = triIds[3 * i + j];
+					var id1 = triIds[3 * i + (j + 1) % 3];
+					edges.push({
+						id0: Math.min(id0, id1),
+						id1: Math.max(id0, id1),
+						edgeNr: 3 * i + j
+					});
+				}
+			}
+
+			// sort so common edges are next to each other
+
+			edges.sort((a, b) => ((a.id0 < b.id0) || (a.id0 == b.id0 && a.id1 < b.id1)) ? -1 : 1);
+
+			// find matchign edges
+
+			neighbors = new Float32Array(3 * numTris);
+			neighbors.fill(-1);		// open edge
+
+			var nr = 0;
+			while (nr < edges.length) {
+				var e0 = edges[nr];
+				nr++;
+				if (nr < edges.length) {
+					var e1 = edges[nr];
+					if (e0.id0 == e1.id0 && e0.id1 == e1.id1) {
+						neighbors[e0.edgeNr] = e1.edgeNr;
+						neighbors[e1.edgeNr] = e0.edgeNr;
+					}
+					nr++;
+				}
+			}
+
+			return neighbors;
+		}
+
+		// ------------------------------------------------------------------
+		class Cloth {
+			constructor(mesh, scene, bendingCompliance = 1.0) {
+				// particles
+
+				this.numParticles = mesh.vertices.length / 3;
+				this.pos = new Float32Array(mesh.vertices);
+				this.prevPos = new Float32Array(mesh.vertices);
+				this.restPos = new Float32Array(mesh.vertices);
+				this.vel = new Float32Array(3 * this.numParticles);
+				this.invMass = new Float32Array(this.numParticles);
+
+				// stretching and bending constraints
+
+				neighbors = findTriNeighbors(mesh.faceTriIds);
+				var numTris = mesh.faceTriIds.length / 3;
+				var edgeIds = [];
+				var triPairIds = [];
+
+				for (var i = 0; i < numTris; i++) {
+					for (var j = 0; j < 3; j++) {
+						var id0 = mesh.faceTriIds[3 * i + j];
+						var id1 = mesh.faceTriIds[3 * i + (j + 1) % 3];
+
+						// each edge only once
+						var n = neighbors[3 * i + j];
+						if (n < 0 || id0 < id1) {
+							edgeIds.push(id0);
+							edgeIds.push(id1);
+						}
+						// tri pair
+						if (n >= 0) {
+							// opposite ids
+							var ni = Math.floor(n / 3);
+							var nj = n % 3;
+							var id2 = mesh.faceTriIds[3 * i + (j + 2) % 3];
+							var id3 = mesh.faceTriIds[3 * ni + (nj + 2) % 3];
+							triPairIds.push(id0);
+							triPairIds.push(id1);
+							triPairIds.push(id2);
+							triPairIds.push(id3);
+						}
+					}
+				}
+
+				this.stretchingIds = new Int32Array(edgeIds);
+				this.bendingIds = new Int32Array(triPairIds);
+				this.stretchingLengths = new Float32Array(this.stretchingIds.length / 2);
+				this.bendingLengths = new Float32Array(this.bendingIds.length / 4);
+
+				this.stretchingCompliance = 0.0;
+				this.bendingCompliance = bendingCompliance;
+
+				this.temp = new Float32Array(4 * 3);
+				this.grads = new Float32Array(4 * 3);
+
+				this.grabId = -1;
+				this.grabInvMass = 0.0;
+
+				this.initPhysics(mesh.faceTriIds);
+
+				// visual edge mesh
+				// this makes the edge mesh blue
+				var geometry = new THREE.BufferGeometry();
+				geometry.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
+				geometry.setIndex(edgeIds);
+				var lineMaterial = new THREE.LineBasicMaterial({color: 0x0000ff, linewidth: 2});
+				this.edgeMesh = new THREE.LineSegments(geometry, lineMaterial);
+				this.edgeMesh.visible = false;
+				scene.add(this.edgeMesh);
+
+				// visual tri mesh
+				// this makes the rendered triangle mesh red
+				geometry = new THREE.BufferGeometry();
+				geometry.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
+				geometry.setIndex(mesh.faceTriIds);
+				// var visMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff, side: THREE.DoubleSide});
+				// replace your MeshPhongMaterial with:
+				const visMaterial = new THREE.MeshStandardMaterial({
+					color: 0x2a4c84,   // denim blue
+					roughness: 0.95,
+					metalness: 0.0,
+					side: THREE.DoubleSide
+				});
+
+				this.triMesh = new THREE.Mesh(geometry, visMaterial);
+				this.triMesh.castShadow = true;
+				this.triMesh.userData = this;	// for raycasting
+
+				this.triMesh.layers.enable(1);
+				scene.add(this.triMesh);
+				geometry.computeVertexNormals();
+
+				this.updateMeshes();
+
+				this.volIdOrder = [[1, 3, 2], [0, 2, 3], [0, 3, 1], [0, 1, 2]];
+			}
+
+			initPhysics(triIds) {
+				this.invMass.fill(0.0);
+
+				var numTris = triIds.length / 3;
+				var e0 = [0.0, 0.0, 0.0];
+				var e1 = [0.0, 0.0, 0.0];
+				var c = [0.0, 0.0, 0.0];
+
+				for (var i = 0; i < numTris; i++) {
+					var id0 = triIds[3 * i];
+					var id1 = triIds[3 * i + 1];
+					var id2 = triIds[3 * i + 2];
+					vecSetDiff(e0, 0, this.pos, id1, this.pos, id0);
+					vecSetDiff(e1, 0, this.pos, id2, this.pos, id0);
+					vecSetCross(c, 0, e0, 0, e1, 0);
+					var A = 0.5 * Math.sqrt(vecLengthSquared(c, 0));
+					var pInvMass = A > 0.0 ? 1.0 / A / 3.0 : 0.0;
+					this.invMass[id0] += pInvMass;
+					this.invMass[id1] += pInvMass;
+					this.invMass[id2] += pInvMass;
+				}
+
+				for (var i = 0; i < this.stretchingLengths.length; i++) {
+					var id0 = this.stretchingIds[2 * i];
+					var id1 = this.stretchingIds[2 * i + 1];
+					this.stretchingLengths[i] = Math.sqrt(vecDistSquared(this.pos, id0, this.pos, id1));
+				}
+
+				for (var i = 0; i < this.bendingLengths.length; i++) {
+					var id0 = this.bendingIds[4 * i + 2];
+					var id1 = this.bendingIds[4 * i + 3];
+					this.bendingLengths[i] = Math.sqrt(vecDistSquared(this.pos, id0, this.pos, id1));
+				}
+
+				// attach (pin) all verts on the top edge/ring
+				let maxY = -Number.MAX_VALUE;
+				for (let i = 0; i < this.numParticles; i++) {
+					maxY = Math.max(maxY, this.pos[3 * i + 1]);
+				}
+				const tol = 0.03; // in world units here; adjust (e.g., 1% of targetHeight if you pass it down)
+				for (let i = 0; i < this.numParticles; i++) {
+					const y = this.pos[3 * i + 1];
+					if (y >= maxY - tol) this.invMass[i] = 0.0; // pinned
+				}
+
+			}
+
+			preSolve(dt, gravity) {
+				for (var i = 0; i < this.numParticles; i++) {
+					if (this.invMass[i] == 0.0)
+						continue;
+					vecAdd(this.vel, i, gravity, 0, dt);
+					vecCopy(this.prevPos, i, this.pos, i);
+					vecAdd(this.pos, i, this.vel, i, dt);
+					var y = this.pos[3 * i + 1];
+					if (y < 0.0) {
+						vecCopy(this.pos, i, this.prevPos, i);
+						this.pos[3 * i + 1] = 0.0;
+					}
+				}
+			}
+
+			solve(dt) {
+				this.solveStretching(this.stretchingCompliance, dt);
+				this.solveBending(this.bendingCompliance, dt);
+			}
+
+			postSolve(dt) {
+				for (var i = 0; i < this.numParticles; i++) {
+					if (this.invMass[i] == 0.0)
+						continue;
+					vecSetDiff(this.vel, i, this.pos, i, this.prevPos, i, 1.0 / dt);
+				}
+			}
+
+			solveStretching(compliance, dt) {
+				var alpha = compliance / dt / dt;
+
+				for (var i = 0; i < this.stretchingLengths.length; i++) {
+					var id0 = this.stretchingIds[2 * i];
+					var id1 = this.stretchingIds[2 * i + 1];
+					var w0 = this.invMass[id0];
+					var w1 = this.invMass[id1];
+					var w = w0 + w1;
+					if (w == 0.0)
+						continue;
+
+					vecSetDiff(this.grads, 0, this.pos, id0, this.pos, id1);
+					var len = Math.sqrt(vecLengthSquared(this.grads, 0));
+					if (len == 0.0)
+						continue;
+					vecScale(this.grads, 0, 1.0 / len);
+					var restLen = this.stretchingLengths[i];
+					var C = len - restLen;
+					var s = -C / (w + alpha);
+					vecAdd(this.pos, id0, this.grads, 0, s * w0);
+					vecAdd(this.pos, id1, this.grads, 0, -s * w1);
+				}
+			}
+
+			solveBending(compliance, dt) {
+				var alpha = compliance / dt / dt;
+
+				for (var i = 0; i < this.bendingLengths.length; i++) {
+					var id0 = this.bendingIds[4 * i + 2];
+					var id1 = this.bendingIds[4 * i + 3];
+					var w0 = this.invMass[id0];
+					var w1 = this.invMass[id1];
+					var w = w0 + w1;
+					if (w == 0.0)
+						continue;
+
+					vecSetDiff(this.grads, 0, this.pos, id0, this.pos, id1);
+					var len = Math.sqrt(vecLengthSquared(this.grads, 0));
+					if (len == 0.0)
+						continue;
+					vecScale(this.grads, 0, 1.0 / len);
+					var restLen = this.bendingLengths[i];
+					var C = len - restLen;
+					var s = -C / (w + alpha);
+					vecAdd(this.pos, id0, this.grads, 0, s * w0);
+					vecAdd(this.pos, id1, this.grads, 0, -s * w1);
+				}
+			}
+
+			updateMeshes() {
+				this.triMesh.geometry.computeVertexNormals();
+				this.triMesh.geometry.attributes.position.needsUpdate = true;
+				this.triMesh.geometry.computeBoundingSphere();
+
+				this.edgeMesh.geometry.attributes.position.needsUpdate = true;
+			}
+
+			endFrame() {
+				this.updateMeshes();
+			}
+
+			startGrab(pos) {
+				var p = [pos.x, pos.y, pos.z];
+				var minD2 = Number.MAX_VALUE;
+				this.grabId = -1;
+				for (let i = 0; i < this.numParticles; i++) {
+					var d2 = vecDistSquared(p, 0, this.pos, i);
+					if (d2 < minD2) {
+						minD2 = d2;
+						this.grabId = i;
+					}
+				}
+
+				if (this.grabId >= 0) {
+					this.grabInvMass = this.invMass[this.grabId];
+					this.invMass[this.grabId] = 0.0;
+					vecCopy(this.pos, this.grabId, p, 0);
+				}
+			}
+
+			moveGrabbed(pos, vel) {
+				if (this.grabId >= 0) {
+					var p = [pos.x, pos.y, pos.z];
+					vecCopy(this.pos, this.grabId, p, 0);
+				}
+			}
+
+			endGrab(pos, vel) {
+				if (this.grabId >= 0) {
+					this.invMass[this.grabId] = this.grabInvMass;
+					var v = [vel.x, vel.y, vel.z];
+					vecCopy(this.vel, this.grabId, v, 0);
+				}
+				this.grabId = -1;
+			}
+		}
+
+		// ------------------------------------------------------------------
+		function initPhysics() {
+			var mesh = meshes[0];
+
+			var body = new Cloth(mesh, gThreeScene);
+			gPhysicsScene.objects.push(body);
+			document.getElementById("numTris").innerHTML = mesh.faceTriIds.length / 3;
+			document.getElementById("numVerts").innerHTML = mesh.vertices.length / 3;
+		}
+
+		var timeFrames = 0;
+		var timeSum = 0;
+
+		// ------------------------------------------------------------------
+		function simulate() {
+			if (gPhysicsScene.paused)
+				return;
+
+			var startTime = performance.now();
+
+			var sdt = gPhysicsScene.dt / gPhysicsScene.numSubsteps;
+
+			for (var step = 0; step < gPhysicsScene.numSubsteps; step++) {
+
+				for (var i = 0; i < gPhysicsScene.objects.length; i++)
+					gPhysicsScene.objects[i].preSolve(sdt, gPhysicsScene.gravity);
+
+				for (var i = 0; i < gPhysicsScene.objects.length; i++)
+					gPhysicsScene.objects[i].solve(sdt);
+
+				for (var i = 0; i < gPhysicsScene.objects.length; i++)
+					gPhysicsScene.objects[i].postSolve(sdt);
+
+			}
+			for (var i = 0; i < gPhysicsScene.objects.length; i++)
+				gPhysicsScene.objects[i].endFrame();
+
+			gGrabber.increaseTime(gPhysicsScene.dt);
+
+			var endTime = performance.now();
+			timeSum += endTime - startTime;
+			timeFrames++;
+
+			if (timeFrames > 10) {
+				timeSum /= timeFrames;
+				document.getElementById("ms").innerHTML = timeSum.toFixed(3);
+				timeFrames = 0;
+				timeSum = 0;
+			}
+		}
+
+		// ------------------------------------------
+
+		function initThreeScene() {
+			gThreeScene = new THREE.Scene();
+
+			// Lights
+
+			gThreeScene.add(new THREE.AmbientLight(0x505050));
+			gThreeScene.fog = new THREE.Fog(0x000000, 0, 15);
+
+			var spotLight = new THREE.SpotLight(0xffffff);
+			spotLight.angle = Math.PI / 5;
+			spotLight.penumbra = 0.2;
+			spotLight.position.set(2, 3, 3);
+			spotLight.castShadow = true;
+			spotLight.shadow.camera.near = 3;
+			spotLight.shadow.camera.far = 10;
+			spotLight.shadow.mapSize.width = 1024;
+			spotLight.shadow.mapSize.height = 1024;
+			gThreeScene.add(spotLight);
+
+			var dirLight = new THREE.DirectionalLight(0x55505a, 1);
+			dirLight.position.set(0, 3, 0);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.near = 1;
+			dirLight.shadow.camera.far = 10;
+
+			dirLight.shadow.camera.right = 1;
+			dirLight.shadow.camera.left = - 1;
+			dirLight.shadow.camera.top = 1;
+			dirLight.shadow.camera.bottom = - 1;
+
+			dirLight.shadow.mapSize.width = 1024;
+			dirLight.shadow.mapSize.height = 1024;
+			gThreeScene.add(dirLight);
+
+			// Geometry
+
+			var ground = new THREE.Mesh(
+				new THREE.PlaneBufferGeometry(20, 20, 1, 1),
+				new THREE.MeshPhongMaterial({color: 0xa0adaf, shininess: 150})
+			);
+
+			ground.rotation.x = - Math.PI / 2; // rotates X/Y to X/Z
+			ground.receiveShadow = true;
+			gThreeScene.add(ground);
+
+			var helper = new THREE.GridHelper(20, 20);
+			helper.material.opacity = 1.0;
+			helper.material.transparent = true;
+			helper.position.set(0, 0.002, 0);
+			gThreeScene.add(helper);
+
+			// Renderer
+
+			gRenderer = new THREE.WebGLRenderer();
+			gRenderer.shadowMap.enabled = true;
+			gRenderer.setPixelRatio(window.devicePixelRatio);
+			gRenderer.setSize(0.8 * window.innerWidth, 0.8 * window.innerHeight);
+			window.addEventListener('resize', onWindowResize, false);
+			container.appendChild(gRenderer.domElement);
+
+			// Camera
+
+			gCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
+			gCamera.position.set(0, 1, 1);
+			gCamera.updateMatrixWorld();
+
+			gThreeScene.add(gCamera);
+
+			gCameraControl = new THREE.OrbitControls(gCamera, gRenderer.domElement);
+			gCameraControl.zoomSpeed = 2.0;
+			gCameraControl.panSpeed = 0.4;
+			gCameraControl.target = new THREE.Vector3(0.0, 0.6, 0.0);
+			gCameraControl.update();
+
+			// grabber
+
+			gGrabber = new Grabber();
+			container.addEventListener('pointerdown', onPointer, false);
+			container.addEventListener('pointermove', onPointer, false);
+			container.addEventListener('pointerup', onPointer, false);
+		}
+
+		// ------- grabber -----------------------------------------------------------
+
+		class Grabber {
+			constructor() {
+				this.raycaster = new THREE.Raycaster();
+				this.raycaster.layers.set(1);
+				this.raycaster.params.Line.threshold = 0.1;
+				this.physicsObject = null;
+				this.distance = 0.0;
+				this.prevPos = new THREE.Vector3();
+				this.vel = new THREE.Vector3();
+				this.time = 0.0;
+			}
+			increaseTime(dt) {
+				this.time += dt;
+			}
+			updateRaycaster(x, y) {
+				var rect = gRenderer.domElement.getBoundingClientRect();
+				this.mousePos = new THREE.Vector2();
+				this.mousePos.x = ((x - rect.left) / rect.width) * 2 - 1;
+				this.mousePos.y = -((y - rect.top) / rect.height) * 2 + 1;
+				this.raycaster.setFromCamera(this.mousePos, gCamera);
+			}
+			start(x, y) {
+				this.physicsObject = null;
+				this.updateRaycaster(x, y);
+				var intersects = this.raycaster.intersectObjects(gThreeScene.children);
+				if (intersects.length > 0) {
+					var obj = intersects[0].object.userData;
+					if (obj) {
+						this.physicsObject = obj;
+						this.distance = intersects[0].distance;
+						var pos = this.raycaster.ray.origin.clone();
+						pos.addScaledVector(this.raycaster.ray.direction, this.distance);
+						this.physicsObject.startGrab(pos);
+						this.prevPos.copy(pos);
+						this.vel.set(0.0, 0.0, 0.0);
+						this.time = 0.0;
+						if (gPhysicsScene.paused)
+							run();
+					}
+				}
+			}
+			move(x, y) {
+				if (this.physicsObject) {
+					this.updateRaycaster(x, y);
+					var pos = this.raycaster.ray.origin.clone();
+					pos.addScaledVector(this.raycaster.ray.direction, this.distance);
+
+					this.vel.copy(pos);
+					this.vel.sub(this.prevPos);
+					if (this.time > 0.0)
+						this.vel.divideScalar(this.time);
+					else
+						this.vel.set(0.0, 0.0, 0.0);
+					this.prevPos.copy(pos);
+					this.time = 0.0;
+
+					this.physicsObject.moveGrabbed(pos, this.vel);
+				}
+			}
+			end(x, y) {
+				if (this.physicsObject) {
+					this.physicsObject.endGrab(this.prevPos, this.vel);
+					this.physicsObject = null;
+				}
+			}
+		}
+
+		function onPointer(evt) {
+			event.preventDefault();
+			if (evt.type == "pointerdown") {
+				gGrabber.start(evt.clientX, evt.clientY);
+				gMouseDown = true;
+				if (gGrabber.physicsObject) {
+					gCameraControl.saveState();
+					gCameraControl.enabled = false;
+				}
+			}
+			else if (evt.type == "pointermove" && gMouseDown) {
+				gGrabber.move(evt.clientX, evt.clientY);
+			}
+			else if (evt.type == "pointerup") {
+				if (gGrabber.physicsObject) {
+					gGrabber.end();
+					gCameraControl.reset();
+				}
+				gMouseDown = false;
+				gCameraControl.enabled = true;
+			}
+		}
+
+		document.getElementById("bendingComplianceSlider").oninput = function () {
+			for (var i = 0; i < gPhysicsScene.objects.length; i++)
+				gPhysicsScene.objects[i].bendingCompliance = this.value;
+		}
+
+		// ------------------------------------------------------
+
+		function onWindowResize() {
+
+			gCamera.aspect = window.innerWidth / window.innerHeight;
+			gCamera.updateProjectionMatrix();
+			gRenderer.setSize(window.innerWidth, window.innerHeight);
+		}
+
+		function run() {
+			var button = document.getElementById('buttonRun');
+			if (gPhysicsScene.paused)
+				button.innerHTML = "Stop";
+			else
+				button.innerHTML = "Run";
+			gPhysicsScene.paused = !gPhysicsScene.paused;
+		}
+
+		function restart() {
+			location.reload();
+		}
+
+		// make browser to call us repeatedly -----------------------------------
+
+		function update() {
+			simulate();
+			gRenderer.render(gThreeScene, gCamera);
+			requestAnimationFrame(update);
+		}
+
+		function geometryToMeshData(geom, {
+			targetHeight = 0.8,
+			yTop = 1.0,
+			flattenTop = true,
+			topBandFrac = 0.01,
+			rotateZUpToYUp = true,
+			weldTolerance = 1e-4   // <- NEW: weld seam duplicates by position
+		} = {}) {
+			let g = geom.clone();
+
+			// normalize axes first if needed, then weld
+			g.computeBoundingBox();
+			let bb = g.boundingBox;
+			const size = new THREE.Vector3(); bb.getSize(size);
+			if (rotateZUpToYUp && size.z > size.y && size.z > size.x) {
+				g.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+			}
+
+			// Always weld *by position* (ignores UV/material splits)
+			g = THREE.BufferGeometryUtils.mergeVertices(g, weldTolerance);
+
+			// Ensure triangles + indices
+			if (g.drawMode !== THREE.TrianglesDrawMode)
+				g = THREE.BufferGeometryUtils.toTrianglesDrawMode(g, g.drawMode);
+			if (!g.index) g = g.toNonIndexed();
+
+			g.computeBoundingBox(); bb = g.boundingBox; bb.getSize(size);
+			const center = new THREE.Vector3(); bb.getCenter(center);
+			const scale = size.y > 0 ? (targetHeight / size.y) : 1.0;
+
+			const pos = g.attributes.position.array;
+			for (let i = 0; i < pos.length; i += 3) {
+				pos[i] = (pos[i] - center.x) * scale;
+				pos[i + 1] = (pos[i + 1] - bb.max.y) * scale + yTop;
+				pos[i + 2] = (pos[i + 2] - center.z) * scale;
+			}
+			flattenTop = true
+			// After scaling/centering:
+			if (flattenTop) {
+				// 1) find true maxY after transforms
+				let maxY = -Infinity;
+				for (let i = 1; i < pos.length; i += 3) maxY = Math.max(maxY, pos[i]);
+
+				// 2) tolerance relative to cloth height
+				const tol = Math.max(1e-6, 0.01 * targetHeight); // 1% of height
+
+				// 3) snap all verts on the top band to exactly yTop
+				for (let i = 1; i < pos.length; i += 3) {
+					if (pos[i] >= maxY - tol) pos[i] = yTop;
+				}
+			}
+			g.attributes.position.needsUpdate = true;
+
+
+			const idx = g.index.array;
+			return {
+				name: "loaded_obj",
+				vertices: Array.from(pos),
+				faceTriIds: Array.from(idx),
+				extraEdgePairs: []   // we’ll fill this in step 2 if needed
+			};
+		}
+
+		function loadOBJMesh(url, opts = {targetHeight: 0.8, yTop: 1.0}) {
+			return new Promise((resolve, reject) => {
+				const loader = new THREE.OBJLoader();
+				loader.load(url, (obj) => {
+					const geoms = [];
+					obj.traverse((o) => {
+						if (o.isMesh && o.geometry) {
+							o.updateMatrixWorld(true);
+							const g = o.geometry.clone();
+							g.applyMatrix4(o.matrixWorld);   // bake transforms
+							geoms.push(g);
+						}
+					});
+					if (geoms.length === 0) return reject(new Error("No geometry in OBJ."));
+					let merged = geoms.length === 1
+						? geoms[0]
+						: THREE.BufferGeometryUtils.mergeBufferGeometries(geoms, true);
+					resolve(geometryToMeshData(merged, opts));
+				}, undefined, reject);
+			});
+		}
+
+		initThreeScene();
+		onWindowResize();
+		(async function bootWithOBJ() {
+			try {
+				const meshData = await loadOBJMesh('../../lib/assets/scan/model3.obj', {targetHeight: 0.8, yTop: 1.0});
+
+				// Clear old cloth, if any
+				for (const obj of gPhysicsScene.objects) {
+					gThreeScene.remove(obj.triMesh);
+					gThreeScene.remove(obj.edgeMesh);
+				}
+				gPhysicsScene.objects.length = 0;
+
+				// Build cloth from OBJ
+				const cloth = new Cloth(meshData, gThreeScene, /*bendingCompliance=*/1.0);
+				gPhysicsScene.objects.push(cloth);
+
+				// HUD
+				document.getElementById("numTris").innerText = meshData.faceTriIds.length / 3;
+				document.getElementById("numVerts").innerText = meshData.vertices.length / 3;
+
+				// Start sim/loop if not already
+				update();
+			} catch (e) {
+				console.error(e);
+				alert('OBJ load failed: ' + e.message);
+			}
+		})();
+	</script>
+</body>
+
+</html>

@@ -30,9 +30,10 @@ export class SceneManager {
     floor.matrix.translate(0, -4.2, 0);
     floor.matrix.scale(-32, 0.01, -32);
 
-    let scan = new VoxelMiner.Scan(3, 1, gl, "./george-washington-greenough-statue-(1840)-150k.obj");
-    scan.matrix.translate(0, 5, 0);
-    scan.matrix.scale(0.005, 0.005, 0.005);
+    let scan = new VoxelMiner.Scan(-4, 1, gl, "./car.obj");
+    scan.matrix.translate(0, -4, 0);
+    scan.matrix.scale(5, 5, 5);
+    scan.matrix.rotate(90, 0, 1, 0);
 
     this.scene.push(floor);
     this.scene.push(scan);
