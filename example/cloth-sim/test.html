@@ -1,3 +1,4 @@
+<!-- Original: https://matthias-research.github.io/pages/tenMinutePhysics/14-cloth.html -->
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <html lang="en">
@@ -24,7 +25,7 @@
 
 <body>
 
-	<h3>Cloth Simulation</h3>
+	<h3>Cloth Simulation: https://matthias-research.github.io/pages/tenMinutePhysics/14-cloth.html</h3>
 	<button id="buttonRun" onclick="run()" class="button">Run</button>
 	<button onclick="restart()" class="button">Restart</button>
 	<input type="checkbox" onclick="onShowEdges()"> Show edges</p>
@@ -802,7 +803,7 @@
 		onWindowResize();
 		(async function bootWithOBJ() {
 			try {
-				const meshData = await loadOBJMesh('../../lib/assets/scan/model3.obj', {targetHeight: 0.8, yTop: 1.0});
+				const meshData = await loadOBJMesh('../../lib/assets/scan/cloth.obj', {targetHeight: 0.8, yTop: 1.0});
 
 				// Clear old cloth, if any
 				for (const obj of gPhysicsScene.objects) {
