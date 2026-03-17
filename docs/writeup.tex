@@ -1,0 +1,145 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+\title{VoxelMiner: Modular Real-Time Graphics Engine and Procedural Generation Experiments}
+\author{VoxelMiner Repository Write-up}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+VoxelMiner is a modular graphics codebase centered on a WebGL2 rendering engine and a set of demonstration scenes, with an additional C++ procedural generation sample using Magnum/Corrade. The project emphasizes reusable scene architecture, interactive camera systems, configurable lighting, and practical experimentation through focused examples. This write-up summarizes repository structure, implementation details, design trade-offs, and future work opportunities.
+\end{abstract}
+
+\section{Project Overview}
+
+The repository combines two complementary tracks:
+\begin{enumerate}[leftmargin=*]
+  \item A JavaScript/WebGL2 engine in \texttt{lib/} with reusable rendering abstractions.
+  \item Example applications in \texttt{example/}, including both web demos and a native C++ procedural-generation prototype.
+\end{enumerate}
+
+The guiding objective is to provide an educational-yet-extensible graphics foundation where scene composition, camera behavior, and shading can be modified quickly without tightly coupling feature logic.
+
+\section{Repository Structure}
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{lib/}: Core engine modules (camera, renderer, scene graph, shader model, primitives, texture and utility helpers).
+  \item \texttt{example/basic/}: Baseline runtime integration with GUI controls and input management.
+  \item \texttt{example/scan/}: Demonstrates rendering of a high-vertex-count statue asset.
+  \item \texttt{example/car/}: Vehicle-focused example variant.
+  \item \texttt{example/cloth-sim/}: Cloth-simulation themed prototype.
+  \item \texttt{example/cpp-gen/}: C++/Magnum procedural house generator and interactive viewer.
+  \item \texttt{README.md}: Public-facing feature summary.
+  \item \texttt{bib.md}: Attribution and external resource references.
+\end{itemize}
+
+\section{JavaScript Engine Architecture}
+
+\subsection{Core Modules}
+
+\begin{description}[leftmargin=0cm,labelindent=0cm]
+  \item[\texttt{lib/index.js}] Public entry point exporting reusable engine components.
+  \item[\texttt{lib/scene.js}] \texttt{SceneGraph} stores shape list, point lights, lighting coefficients, and optional overlays (skybox/crosshair).
+  \item[\texttt{lib/camera.js}] Camera model supporting FPS and arcball interaction modes with movement and projection updates.
+  \item[\texttt{lib/renderer.js}] \texttt{WebGLRenderer} orchestrates render order: skybox, lit scene, then crosshair overlay.
+  \item[\texttt{lib/shader-models/phong-shader.js}] Main lighting path using Phong shading and texture mode switches.
+\end{description}
+
+\subsection{Rendering Flow}
+
+Each frame follows a clear sequence:
+\begin{enumerate}[leftmargin=*]
+  \item Clear color/depth buffers.
+  \item Render skybox if present.
+  \item Bind and configure Phong shader uniforms from scene and camera state.
+  \item Render scene geometry list.
+  \item Render crosshair overlay if enabled.
+\end{enumerate}
+
+This pass ordering simplifies background handling and overlay composition while keeping the main geometry path unified.
+
+\subsection{Lighting and Shading}
+
+The shader model includes:
+\begin{itemize}[leftmargin=*]
+  \item Ambient, diffuse, and specular terms with adjustable scalar factors.
+  \item Up to four point lights via a fixed-size shader array.
+  \item Shape-conditional behavior for specialized falloff-based rendering.
+  \item Texture-source routing and diagnostic visualization modes.
+\end{itemize}
+
+\section{Input and Interaction Model}
+
+The basic demo wires controls through an input manager and browser pointer lock:
+\begin{itemize}[leftmargin=*]
+  \item Keyboard movement in world space.
+  \item Mouse-driven look/orbit panning.
+  \item Wheel input for forward/backward movement or arcball radius changes.
+  \item Runtime parameter controls through \texttt{lil-gui} for camera and lighting tuning.
+\end{itemize}
+
+This design allows immediate visual feedback when adjusting rendering parameters and camera behavior.
+
+\section{C++ Procedural Generation Example}
+
+\subsection{Objective}
+
+The C++ sample in \texttt{example/cpp-gen/} demonstrates procedural house generation using Magnum's rendering stack.
+
+\subsection{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+  \item Procedural primitives are assembled through helper functions for triangles, quads, boxes, and roof sections.
+  \item Randomized parameters control width, depth, wall height, roof height, and door dimensions.
+  \item A Phong shader pipeline consumes position/normal/color vertex data.
+  \item Real-time controls support movement (WASD) and regeneration (Space).
+\end{itemize}
+
+\subsection{Build Flow}
+
+The provided script:
+\begin{enumerate}[leftmargin=*]
+  \item Configures CMake with a Debug build.
+  \item Uses \texttt{CMAKE\_PREFIX\_PATH} (defaulting to \texttt{/opt/homebrew}) for dependency discovery.
+  \item Builds executable \texttt{MyApplication}.
+\end{enumerate}
+
+\section{Design Trade-offs}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Simplicity vs. scalability:} fixed maximum light count and straightforward render pass ordering keep complexity low, at the cost of advanced scalability features.
+  \item \textbf{Flexibility vs. strict abstraction:} examples can quickly prototype behavior, though some feature implementations remain demo-centric.
+  \item \textbf{Feature breadth vs. completion depth:} several capabilities are represented at prototype level (e.g., collision hooks) rather than full production systems.
+\end{itemize}
+
+\section{Current Limitations}
+
+\begin{itemize}[leftmargin=*]
+  \item Camera collision checks are currently stubbed.
+  \item Some README-listed roadmap features are partial or not yet fully integrated.
+  \item Performance-oriented paths such as instancing are not fully realized.
+\end{itemize}
+
+\section{Future Work}
+
+\begin{itemize}[leftmargin=*]
+  \item Implement robust collision and world interaction mechanics.
+  \item Add automated regression checks for camera behavior and shader parameter correctness.
+  \item Expand shader variants and support richer material systems.
+  \item Strengthen example documentation with per-scene goals and control summaries.
+\end{itemize}
+
+\section{Attribution Notes}
+
+The repository includes external assets and references (e.g., skyboxes, textures, model data, educational materials), documented in \texttt{bib.md}. Those attributions should be preserved in derivative documentation and distribution artifacts.
+
+\end{document}
